@@ -1,0 +1,18 @@
+#!/bin/bash
+
+APP=$2
+
+if [[ `alias $APP` ]]
+then
+	echo $APP is an alias
+	APP=$(alias $APP | grep -oP "(?<=').*(?=')")
+	echo $APP
+fi
+
+if [ $3!="" ]
+then
+	APP="$APP $3"
+fi
+echo "Opening $APP in workspace $1..." 
+
+/usr/bin/i3-msg "workspace "$1 && exec $APP
