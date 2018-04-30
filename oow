@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#script to open things from terminal into an arbitrary i3 workspace
+
+for C in "$@" ; do
+	if [[ $C =~ ^[0-9]{1,2}$ ]] ; then
+    WS="$C"
+  else
+		APP+=" $C"
+  fi
+done 
+
+echo "Opening$APP on workspace $WS..." 
+
+/usr/bin/i3-msg "workspace "$WS &>/dev/null && exec $APP
