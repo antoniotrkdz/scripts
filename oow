@@ -2,14 +2,44 @@
 
 #script to open things from terminal into an arbitrary i3 workspace
 
-for C in "$@" ; do
-  if [[ $C =~ ^[0-9]{1,2}$ ]] ; then
-    WS="$C"
+for COMMAND in "$@" ; do
+  if [[ $COMMAND =~ ^[0-9]{1,2}$ ]] ; then
+    WORK_SPACE="$COMMAND"
   else
-    APP+=" $C"
+    APPLICATION+=" $COMMAND"
   fi
-done 
+done
 
-echo "Opening$APP on workspace $WS..." 
+if [[ ! $WORK_SPACE ]] ; then
+  ## command to get the list of busy workspaces
+  ##-----------------------------------------------
+  ## i3-msg gives back a long list, use sed to:
+  ## add a newline \n at the end of it
+  ## loop through the elements
+  ## shift the "num":[0-9] string after the newline
+  ## loop end
+  ## delete all the string before the newline 
+  ## clean up the strings to get only the numbers.
+  WS_LIST=($(i3-msg -t get_workspaces | sed -r '
+  s/$/\n/
+  :a
+  s/(num":[0-9])(.*\n.*)/\2 \1/
+  ta
+  s/^.*\n//
+  s/num"://g')) ## bash array declaration
+  echo ${WS_LIST[*]} ## show me the array
+  ##declare -p WS_LIST | grep -q '^declare \-a' && echo array || echo no array ## check if variable is an array
+  for i in ${!WS_LIST[@]} ; do
+    if [[ ${WS_LIST[i]} != $((i + 1)) ]] ; then
+      WORK_SPACE=$((i + 1))
+      echo $WORK_SPACE
+      break
+    else
+      WORK_SPACE=${#WS_LIST[@]} 
+      WORK_SPACE=$((WORK_SPACE + 1))
+    fi
+  done
+fi
 
-/usr/bin/i3-msg "workspace "$WS &>/dev/null && exec $APP
+echo "Opening$APPLICATION on workspace $WORK_SPACE..." 
+/usr/bin/i3-msg "workspace "$WORK_SPACE &>/dev/null && exec $APPLICATION
