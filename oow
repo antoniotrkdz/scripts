@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#script to open things from terminal into an arbitrary i3 workspace
+## script to open things from terminal into an arbitrary i3 workspace
 
 for COMMAND in "$@" ; do
   if [[ $COMMAND =~ ^[0-9]{1,2}$ ]] ; then
@@ -20,6 +20,7 @@ if [[ ! $WORK_SPACE ]] ; then
   ## loop end
   ## delete all the string before the newline 
   ## clean up the strings to get only the numbers.
+  ##-----------------------------------------------
   WS_LIST=($(i3-msg -t get_workspaces | sed -r '
   s/$/\n/
   :a
@@ -27,12 +28,12 @@ if [[ ! $WORK_SPACE ]] ; then
   ta
   s/^.*\n//
   s/num"://g')) ## bash array declaration
-  echo ${WS_LIST[*]} ## show me the array
-  ##declare -p WS_LIST | grep -q '^declare \-a' && echo array || echo no array ## check if variable is an array
-  for i in ${!WS_LIST[@]} ; do
+  #echo ${WS_LIST[*]} ## debug - show me the array
+  #declare -p WS_LIST | grep -q '^declare \-a' && echo array || echo no array ## debug - check if variable is an array
+  for i in "${!WS_LIST[@]}" ; do
     if [[ ${WS_LIST[i]} != $((i + 1)) ]] ; then
       WORK_SPACE=$((i + 1))
-      echo $WORK_SPACE
+      #echo $WORK_SPACE ## debug - show me the selected workspace
       break
     else
       WORK_SPACE=${#WS_LIST[@]} 
