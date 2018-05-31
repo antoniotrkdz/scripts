@@ -1,1 +1,1 @@
-# (Bash) Scripts collection
+# (Bash) various scripts collection
