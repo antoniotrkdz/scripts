@@ -1,12 +1,14 @@
 #!/bin/bash
-
 ## script to open things from terminal into an arbitrary i3 workspace
+. ~/.bash_aliases
 
 for COMMAND in "$@" ; do
   if [[ $COMMAND =~ ^[0-9]{1,2}$ ]] ; then
     WORK_SPACE="$COMMAND"
+  elif [[ ${BASH_ALIASES[$COMMAND]} ]] ; then
+    APPLICATION+="$(echo ${BASH_ALIASES[$COMMAND]}) "
   else
-    APPLICATION+=" $COMMAND"
+    APPLICATION+="$COMMAND "
   fi
 done
 
@@ -28,19 +30,20 @@ if [[ ! $WORK_SPACE ]] ; then
   ta
   s/^.*\n//
   s/num"://g')) ## bash array declaration
-  #echo ${WS_LIST[*]} ## debug - show me the array
-  #declare -p WS_LIST | grep -q '^declare \-a' && echo array || echo no array ## debug - check if variable is an array
+  #echo ${WS_LIST[*]} ## DEBUG - show me the array
+  #declare -p WS_LIST | grep -q '^declare \-a' && echo array || echo no array ## DEBUG - check if variable is an array
   for i in "${!WS_LIST[@]}" ; do
     if [[ ${WS_LIST[i]} != $((i + 1)) ]] ; then
       WORK_SPACE=$((i + 1))
-      #echo $WORK_SPACE ## debug - show me the selected workspace
+      #echo $WORK_SPACE ## DEBUG - show me the selected workspace
       break
     else
-      WORK_SPACE=${#WS_LIST[@]} 
+      WORK_SPACE=${#WS_LIST[@]}
       WORK_SPACE=$((WORK_SPACE + 1))
     fi
   done
 fi
 
-echo "Opening$APPLICATION on workspace $WORK_SPACE..." 
+echo "Opening $APPLICATION on workspace $WORK_SPACE..."
+## DEBUG - comment the last line to debug this script
 /usr/bin/i3-msg "workspace "$WORK_SPACE &>/dev/null && exec $APPLICATION
