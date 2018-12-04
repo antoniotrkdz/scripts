@@ -1,6 +1,6 @@
 #!/bin/bash
 ## script to open things from terminal into an arbitrary i3 workspace
-. ~/.bash_aliases
+source ~/.bash_aliases
 
 for COMMAND in "$@" ; do
   if [[ $COMMAND =~ ^[0-9]{1,2}$ ]] ; then
