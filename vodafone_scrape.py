@@ -3,10 +3,17 @@
 import time
 import yaml
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
-credentials = yaml.safe_load(open('credentials.yaml', 'r'))
+options = Options()
+options.add_argument("--headless") # Runs Chrome in headless mode.
+options.add_argument('--no-sandbox') # Bypass OS security model
+options.add_argument('disable-infobars')
+options.add_argument("--disable-extensions")
 
-driver = webdriver.Chrome('/usr/bin/chromedriver')
+credentials = yaml.safe_load(open('/home/antoniotrkdz/scripts/credentials.yaml', 'r'))
+
+driver = webdriver.Chrome(chrome_options=options, executable_path='/usr/bin/chromedriver')
 driver.get('https://www.vodafone.it/area-utente/fai-da-te/Common/PaginaUnicadiLogin.html#')
 assert 'Smartphone, Internet, telefoni cellulari, telefoni' in driver.title
 
@@ -17,9 +24,10 @@ password_field = driver.find_element_by_name('password')
 password_field.send_keys(credentials['vodafone_password'])
 
 submit_button = driver.find_element_by_tag_name('button')
-submit_button.click()
+# submit_button.click() # Not working in headless mode
+submit_button.send_keys(u'\ue007') # Unicode for Enter key
 
-time.sleep(4)
+time.sleep(5)
 residual = driver.find_element_by_id('rzf_increment-value-0-0-0')
 print(residual.text)
 
