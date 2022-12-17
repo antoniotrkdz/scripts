@@ -1,0 +1,29 @@
+
+# Gather environment variables for x comands (from daemons)
+# DISPLAY=":0.0"
+# HOME=/home/antoniotrkdz
+# XAUTHORITY=$HOME/.Xauthority
+# export DISPLAY XAUTHORITY
+
+
+# setsid starts things in another session
+# if [ "$1" != "fo_real" ]; then
+#   /usr/bin/setsid $(/usr/bin/dirname $0)/$(/usr/bin/basename $0) fo_real &
+#   exit
+# fi
+
+# Notation to do multiple commands on one redirect
+# { echo $UID; echo $XAUTHORITY ; echo $DISPLAY ; } >> $LOG_FILE
+
+# Very elegant notation to do (all lines are equivalent)
+# cat ~/.xsessionrc | grep -e '/bin/.*x' | bash -
+# grep -e '/bin/.*x' < cat ~/.xsessionrc | bash -
+# < ~/.xsessionrc grep -e '/bin/.*x' | bash -
+
+# Mixed (regex) stuff
+# USBKBD_IDS=$(xinput --list | grep -Po  'USBPS2.+[0-9]+(?=.+keyboard)' | awk -F'=' '{print $2}')
+# exit 0 ## you can choose the exit status of a command yourself.
+
+# EVENT = /dev/input/ext_usb/ CREATE usbps2
+# VAR=${EVENT#?*CREATE }
+# VAR is usbps2
