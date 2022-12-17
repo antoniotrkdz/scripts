@@ -1,12 +1,12 @@
 #!/bin/bash
 ## script to open things from terminal into an arbitrary i3 workspace
-. ~/.bash_aliases
+source ~/.bash_aliases
 
 for COMMAND in "$@" ; do
   if [[ $COMMAND =~ ^[0-9]{1,2}$ ]] ; then
     WORK_SPACE="$COMMAND"
   elif [[ ${BASH_ALIASES[$COMMAND]} ]] ; then
-    APPLICATION+="$(echo ${BASH_ALIASES[$COMMAND]}) "
+    APPLICATION+="${BASH_ALIASES[$COMMAND]} "
   else
     APPLICATION+="$COMMAND "
   fi
@@ -24,26 +24,54 @@ if [[ ! $WORK_SPACE ]] ; then
   ## clean up the strings to get only the numbers.
   ##-----------------------------------------------
   WS_LIST=($(i3-msg -t get_workspaces | sed -r '
-  s/$/\n/
-  :a
-  s/(num":[0-9])(.*\n.*)/\2 \1/
-  ta
-  s/^.*\n//
-  s/num"://g')) ## bash array declaration
-  #echo ${WS_LIST[*]} ## DEBUG - show me the array
-  #declare -p WS_LIST | grep -q '^declare \-a' && echo array || echo no array ## DEBUG - check if variable is an array
+    s/$/\n/
+    :a
+    s/(num":[0-9])(.*\n.*)/\2 \1/
+    ta
+    s/^.*\n//
+    s/num"://g'
+  ))
+  ## DEBUG - show me the array
+  # echo "${WS_LIST[*]}"
+  ## DEBUG - check if variable is an array
+  # declare -p WS_LIST | grep -q '^declare \-a' && echo array || echo no array
+
+  # Give me the first available workspace.
   for i in "${!WS_LIST[@]}" ; do
-    if [[ ${WS_LIST[i]} != $((i + 1)) ]] ; then
+    if [[ ${WS_LIST[i]} -ne $((i + 1)) ]] ; then
       WORK_SPACE=$((i + 1))
-      #echo $WORK_SPACE ## DEBUG - show me the selected workspace
+      ## DEBUG - show me the selected workspace
+      # echo $WORK_SPACE
       break
     else
       WORK_SPACE=${#WS_LIST[@]}
       WORK_SPACE=$((WORK_SPACE + 1))
     fi
   done
+
 fi
 
-echo "Opening $APPLICATION on workspace $WORK_SPACE..."
+# List of commands that need to be executed from the terminal.
+TERMINAL_APPS=(
+  '^nv(im)?( .*)*'
+  'ncdu( .*)*'
+)
+
+for j in "${!TERMINAL_APPS[@]}" ; do
+  if [[ $APPLICATION =~ ${TERMINAL_APPS[j]} ]] ; then
+    # DEBUG - show me the regex
+    echo "${TERMINAL_APPS[j]}"
+    KITTY=$(command -v kitty)
+    if [[ -e $KITTY ]] ; then
+      APPLICATION="$KITTY --detach $APPLICATION"
+      break
+    else
+      APPLICATION="/usr/bin/x-terminal-emulator -e $APPLICATION"
+      break
+    fi
+  fi
+done
+
+echo "Opening ${APPLICATION}on workspace $WORK_SPACE..."
 ## DEBUG - comment the last line to debug this script
-/usr/bin/i3-msg "workspace "$WORK_SPACE &>/dev/null && exec $APPLICATION
+/usr/bin/i3-msg "workspace ""$WORK_SPACE" &>/dev/null && exec $APPLICATION &
